@@ -1,12 +1,19 @@
+# Flask Imports
 from flask import Flask,request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 
+# Environment Variables Setup
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 # Declaring the Constants
-POSTGRES_USER = 'postgres'
-POSTGRES_PASSWORD = 'password'
-POSTGRES_URI = '127.0.0.1:5432'
-POSTGRES_DB = "notes_app"
+SECRET_KEY = os.getenv("SECRET_KEY")
+POSTGRES_USER = os.getenv('POSTGRES_USER')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
+POSTGRES_URI = os.getenv('POSTGRES_URI')
+POSTGRES_DB = os.getenv('POSTGRES_DB')
 
 DB_URI =f'postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_URI}/{POSTGRES_DB}'
 
@@ -23,9 +30,10 @@ from .notes import notes
 
 
 def create_app():
-    app = Flask(__name__)
 
-    app.config['SECRET_KEY'] = "helloworld"
+    # Initialising the App and setting its secret key
+    app = Flask(__name__)
+    app.config['SECRET_KEY'] = SECRET_KEY
 
     # Initialising the Database
     app.config['SQLALCHEMY_DATABASE_URI'] = DB_URI
@@ -38,6 +46,7 @@ def create_app():
     login_manager.login_view = "auth.login"
     login_manager.init_app(app)
 
+    # Registering the Route Blueprints
     app.register_blueprint(auth,url_prefix="/")
     app.register_blueprint(notes,url_prefix="/notes")
 
@@ -45,7 +54,6 @@ def create_app():
     @login_manager.user_loader
     def load_user(id):
         return User.query.get(int(id))
-
 
     return app
 
