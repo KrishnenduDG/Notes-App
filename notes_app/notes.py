@@ -52,8 +52,7 @@ def create_note():
             db.session.add(new_note)
             db.session.commit()
             return jsonify({"status":"success","msg" : "Note Created", "note_id":new_note.id})
-        except Exception as err:
-            print(err)
+        except:
             return jsonify({"status":"Failure","msg":"Internal Database error occured"})
 
 
@@ -95,12 +94,15 @@ def update_note(id):
     if note_from_id.author != current_user.id:
         return jsonify({"status":"Unauthorized","msg":"You have don't have the access to Delete the Specific Note!"})
     else:
-        note_from_id.title=title
-        note_from_id.content=content
-        note_from_id.is_public=is_public
-        db.session.commit()
-        return jsonify({"id":note_from_id.id,"title":note_from_id.title,"content":note_from_id.content,"is_public":note_from_id.is_public})
-    
+        try:
+            note_from_id.title=title
+            note_from_id.content=content
+            note_from_id.is_public=is_public
+            db.session.commit()
+            return jsonify({"id":note_from_id.id,"title":note_from_id.title,"content":note_from_id.content,"is_public":note_from_id.is_public})
+        except:
+            return jsonify({"status":"Failure","msg":"Internal Database error occured"})
+        
 
 # Route for deleting a Note
 @notes.route('/delete',methods=['DELETE'])
@@ -121,9 +123,12 @@ def delete_note():
         return jsonify({"status":"Unauthourized","msg":"You have don't have the access to Delete the Specific Note!"})
 
     else:
-        db.session.delete(note)
-        db.session.commit()
-        return jsonify({"status":"Success","msg" : "Note Deleted"})
+        try:
+            db.session.delete(note)
+            db.session.commit()
+            return jsonify({"status":"Success","msg" : "Note Deleted"})
+        except:
+            return jsonify({"status":"Failure","msg":"Internal Database error occured"})
     
 
 # Route for accessing a Note by its ID
